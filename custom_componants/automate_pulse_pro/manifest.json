@@ -1,12 +1,8 @@
-  {
+{
   "domain": "automate_pulse_pro",
   "name": "Automate Pulse Pro",
   "codeowners": ["@IamDan77"],
-  "config_flow": true,
   "documentation": "https://github.com/IamDan77/Automate-Pulse-Pro-for-Home-Assistant",
   "issue_tracker": "https://github.com/IamDan77/Automate-Pulse-Pro-for-Home-Assistant/issues",
-  "name": "Automate Pulse Pro",
-  "version": "1.0.0",
-  "iot_class": "local_polling",
-  "requirements": []
+  "version": "1.0.0"
 }
