@@ -27,7 +27,7 @@ You must have HACS installed.
 * Restart Home Assistant.
 
 
-* Step 3: Install Manually (Alternative)
+Install Manually (Alternative)
 
 * Download this repository.
 * Copy the custom_components/automate-pulse-pro folder into your config/custom_components/ directory.
