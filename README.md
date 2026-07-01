@@ -10,21 +10,25 @@ Battery level is also exposed!
 Disclaimer. This has been vibe coded using Gemini. Hopefully someone can take it and run with it to improve and make the code more efficient
 
 
-***** Installation Guide
+***** Installation Guide *****
 
 * Step 1: Prerequisites
 You must have HACS installed.
 
+
 * Step 2: Install via HACS
 
-Open HACS -> Integrations.
-Click the menu (three dots) in the top right -> Custom repositories.
-Paste this repository URL: https://github.com/IamDan77/Automate-Pulse-Pro-for-Home-Assistant
-Select Category: Integration.
-Click Add, then find Automate-Pulse-Pro in the list and install it.
-Restart Home Assistant.
-Step 3: Install Manually (Alternative)
 
-Download this repository.
-Copy the custom_components/automate-pulse-pro folder into your config/custom_components/ directory.
-Restart Home Assistant.
+* Open HACS -> Integrations.
+* Click the menu (three dots) in the top right -> Custom repositories.
+* Paste this repository URL: https://github.com/IamDan77/Automate-Pulse-Pro-for-Home-Assistant
+* Select Category: Integration.
+* Click Add, then find Automate-Pulse-Pro in the list and install it.
+* Restart Home Assistant.
+
+
+* Step 3: Install Manually (Alternative)
+
+* Download this repository.
+* Copy the custom_components/automate-pulse-pro folder into your config/custom_components/ directory.
+* Restart Home Assistant.
