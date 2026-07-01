@@ -1,6 +1,3 @@
 {
-  "name": "Automate-Pulse-Pro-for-Home-Assistant",
-  "render_readme": true,
-  "content_in_root": false,
-  "homeassistant": "2026.6.4"
+  "name": "Automate Pulse Pro"
 }
