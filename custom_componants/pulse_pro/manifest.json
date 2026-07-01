@@ -1,11 +1,12 @@
-{
-  "domain": "pulse_pro",
-  "name": "Automate Pulse PRO",
-  "codeowners": [],
-  "dependencies": [],
-  "documentation": "",
-  "iot_class": "local_polling",
+  {
+  "domain": "automate_pulse_pro",
+  "name": "Automate Pulse Pro",
+  "codeowners": ["@IamDan77"],
   "config_flow": true,
-  "requirements": [],
-  "version": "1.1.0"
+  "documentation": "https://github.com/IamDan77/Automate-Pulse-Pro-for-Home-Assistant",
+  "issue_tracker": "https://github.com/IamDan77/Automate-Pulse-Pro-for-Home-Assistant/issues",
+  "name": "Automate Pulse Pro",
+  "version": "1.0.0",
+  "iot_class": "local_polling",
+  "requirements": []
 }
