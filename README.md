@@ -5,4 +5,6 @@ Make sure to add your blinds to the Automate app first. If you need to add anoth
 
 Add the IP adddress of your Pulse Pro and add 1487 as the PORT number
 
+Battery level is also exposed!
+
 Disclaimer. This has been vibe coded using Gemini. Hopefully someone can take it and run with it to improve and make the code more efficient
