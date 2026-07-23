@@ -1,3 +1,5 @@
 {
-  "name": "Automate Pulse Pro"
+  "name": "Automate Pulse Pro",
+  "homeassistant": "2024.6.0",
+  "render_readme": true
 }
