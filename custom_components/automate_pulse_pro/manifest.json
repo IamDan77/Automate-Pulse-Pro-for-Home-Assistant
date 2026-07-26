@@ -1,5 +1,5 @@
 {
-  "domain": "automate_pulse_pro",
+  DOMAIN = "automate_pulse_pro",
   "name": "Automate Pulse Pro",
   "codeowners": ["@IamDan77"],
   "config_flow": true,
