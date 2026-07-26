@@ -1,1 +1,1 @@
-DOMAIN = "pulse_pro"
+DOMAIN = "automate_pulse_pro"
