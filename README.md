@@ -1,5 +1,7 @@
 # Automate Pulse Pro for Home Assistant
 
+DISCLAIMER - THIS WAS CREATED BY AI.
+
 Control **Rollease Acmeda Automate** blinds and shades from Home Assistant through an **Automate Pulse 2 / Pulse PRO hub**, over your local network. No cloud and no account needed.
 
 > **Unofficial.** This is a community project. It is not made, supported or endorsed by Rollease Acmeda. "Automate" and the Automate logo are trademarks of Rollease Acmeda.
