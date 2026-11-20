@@ -90,7 +90,7 @@ Install the update through HACS and restart Home Assistant. Your blinds keep the
 - The hub itself is recognised and no longer added as a blind.
 
 ## Contributing
-Issues and pull requests are welcome. Version 1 was vibe coded using Gemini; version 2 is a rewrite.
+Issues and pull requests are welcome. Version 1 was vibe coded using Gemini; version 2 is a rewrite using CLAUDE 5.5 Opus
 
 ## Changes in 2.2.0
 - **Works with other people's hubs out of the box:** the hub itself is recognised from the version reply (motors answer `vD`/`vA`), so it is no longer added as a blind, whatever its ID. Older versions could add it (e.g. `BR1`); it is now removed automatically.
