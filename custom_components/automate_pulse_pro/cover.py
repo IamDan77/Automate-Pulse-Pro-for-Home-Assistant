@@ -1,94 +1,103 @@
-import socket
-import re
-from homeassistant.components.cover import CoverEntity, CoverEntityFeature, ATTR_POSITION
-from .const import DOMAIN
+"""Cover platform for Automate Pulse PRO blinds."""
+from __future__ import annotations
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Set up covers from config entry."""
-    data = hass.data[DOMAIN][config_entry.entry_id]
-    entities = [
-        PulseProCover(blind_id, data["host"], data["port"], config_entry.entry_id)
-        for blind_id in data["blinds"]
-    ]
-    async_add_entities(entities, True)
+from typing import Any
 
-class PulseProCover(CoverEntity):
-    """Pulse PRO Cover item with persistent position memory."""
+from homeassistant.components.cover import (
+    ATTR_CURRENT_POSITION,
+    ATTR_POSITION,
+    CoverEntity,
+    CoverEntityFeature,
+)
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
-    def __init__(self, blind_id, host, port, entry_id):
-        self._blind_id = blind_id.upper()
-        self._host = host
-        self._port = port
-        self._entry_id = entry_id
-        
-        # CHANGED: Default to 50 instead of None so it always has a starting state on boot
-        self._current_position = 50 
-        
-        self._attr_name = f"Pulse Blind {self._blind_id}"
-        self._attr_unique_id = f"{entry_id}_cover_{self._blind_id}"
-        self._attr_supported_features = (
-            CoverEntityFeature.OPEN | 
-            CoverEntityFeature.CLOSE | 
-            CoverEntityFeature.STOP |
-            CoverEntityFeature.SET_POSITION
-        )
+from .const import ACTION_CLOSE, ACTION_OPEN, ACTION_STOP
+from .entity import PulseProEntity
+from .hub import HubError
+from .models import PulseProConfigEntry, PulseProData
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: PulseProConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    data = entry.runtime_data
+    async_add_entities(PulseProCover(data, b, entry.entry_id) for b in data.blinds)
+
+
+class PulseProCover(PulseProEntity, CoverEntity, RestoreEntity):
+    """A blind controlled by the Pulse PRO hub."""
+
+    _attr_supported_features = (
+        CoverEntityFeature.OPEN
+        | CoverEntityFeature.CLOSE
+        | CoverEntityFeature.STOP
+        | CoverEntityFeature.SET_POSITION
+    )
+
+    def __init__(self, data: PulseProData, blind_id: str, entry_id: str) -> None:
+        super().__init__(data, blind_id, entry_id)
+        # The cover is the main entity, so it takes the device name.
+        # Same unique ID as v1, so existing entities and history are kept.
+        self._attr_name = None
+        self._attr_unique_id = f"{entry_id}_cover_{blind_id}"
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        # Many battery motors don't answer position queries. Start from the
+        # last known position instead of "unknown" after a restart.
+        if self._blind_id not in self._hub.positions:
+            last = await self.async_get_last_state()
+            if last is not None:
+                position = last.attributes.get(ATTR_CURRENT_POSITION)
+                if position is not None:
+                    self._hub.positions[self._blind_id] = int(position)
 
     @property
-    def current_cover_position(self): 
-        return self._current_position
-        
-    @property
-    def is_closed(self): 
-        return self._current_position == 0
+    def assumed_state(self) -> bool:
+        # Position is only an estimate when the blind doesn't report it, so
+        # Home Assistant shows both the open and close buttons
+        return self._blind_id not in self._hub.reports_position
 
     @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self._blind_id)},
-            "name": f"Automate Shade {self._blind_id}",
-            "manufacturer": "Rollease Acmeda",
-            "model": "Pulse PRO Controlled Shade",
-        }
+    def current_cover_position(self) -> int | None:
+        # None (unknown) until the blind has reported - no made-up start value
+        return self._hub.positions.get(self._blind_id)
 
-    def _send(self, action, read=False):
+    @property
+    def is_closed(self) -> bool | None:
+        position = self.current_cover_position
+        return None if position is None else position == 0
+
+    async def async_open_cover(self, **kwargs: Any) -> None:
+        await self._command(ACTION_OPEN, 100)
+
+    async def async_close_cover(self, **kwargs: Any) -> None:
+        await self._command(ACTION_CLOSE, 0)
+
+    async def async_stop_cover(self, **kwargs: Any) -> None:
+        await self._command(ACTION_STOP, None)
+
+    async def async_set_cover_position(self, **kwargs: Any) -> None:
+        position = max(0, min(100, int(kwargs[ATTR_POSITION])))
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(2.0)
-                s.connect((self._host, self._port))
-                s.sendall(f"!{self._blind_id}{action};\n".encode('ascii'))
-                if read: 
-                    return s.recv(1024).decode('ascii')
-        except Exception: 
-            pass
-        return ""
+            await self._hub.async_move(self._blind_id, position)
+        except HubError as err:
+            raise HomeAssistantError(
+                f"Could not send command to blind {self._blind_id}: {err}"
+            ) from err
+        self._hub.set_position(self._blind_id, position)
 
-    def update(self):
-        """Fetch position updates safely without overriding memory on failure."""
-        res = self._send("r?", read=True)
-        if res:
-            match = re.search(rf"!{self._blind_id}r(\d+)", res)
-            if match: 
-                # Successfully found a new position! Save it to memory.
-                self._current_position = max(0, min(100, int(match.group(1))))
-        # If 'res' is empty or the hub timed out, we simply do nothing.
-        # This keeps self._current_position locked onto the last known valid state.
-
-    def open_cover(self, **kwargs): 
-        self._send("o")
-        self._current_position = 100
-        self.schedule_update_ha_state()
-        
-    def close_cover(self, **kwargs): 
-        self._send("c")
-        self._current_position = 0
-        self.schedule_update_ha_state()
-        
-    def stop_cover(self, **kwargs): 
-        self._send("s")
-        
-    def set_cover_position(self, **kwargs):
-        if ATTR_POSITION in kwargs:
-            pos = kwargs[ATTR_POSITION]
-            self._send(f"m{max(0, min(99, int(pos))):02d}")
-            self._current_position = pos
-            self.schedule_update_ha_state()
+    async def _command(self, action: str, optimistic: int | None) -> None:
+        try:
+            await self._hub.async_command(self._blind_id, action)
+        except HubError as err:
+            raise HomeAssistantError(
+                f"Could not send command to blind {self._blind_id}: {err}"
+            ) from err
+        if optimistic is not None:
+            self._hub.set_position(self._blind_id, optimistic)

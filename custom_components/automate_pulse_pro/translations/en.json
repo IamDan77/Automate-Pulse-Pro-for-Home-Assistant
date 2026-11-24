@@ -1,0 +1,72 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Automate Pulse PRO",
+        "description": "Enter the IP address of your Pulse PRO hub. Add your blinds in the Automate app first. Tip: give the hub a fixed IP address (DHCP reservation) in your router so it doesn't change.",
+        "data": {
+          "host": "Host / IP address",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "For example 192.168.1.50",
+          "port": "The Pulse PRO local control port is 1487."
+        }
+      },
+      "reconfigure": {
+        "title": "Change hub address",
+        "description": "Enter the new IP address or port of your Pulse PRO hub. Your blinds, entities and settings are kept.",
+        "data": {
+          "host": "Host / IP address",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "For example 192.168.1.50",
+          "port": "The Pulse PRO local control port is 1487."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the hub. Check the IP address and port, and that the hub is powered on and on the same network as Home Assistant.",
+      "unknown": "Unexpected error. Check the Home Assistant log for details."
+    },
+    "abort": {
+      "already_configured": "This hub is already set up.",
+      "reconfigure_successful": "The hub address has been updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Pulse PRO options",
+        "description": "Blinds found on the hub so far: {blinds}",
+        "data": {
+          "extra_blinds": "Extra blind IDs",
+          "excluded_blinds": "Blind IDs to ignore",
+          "position_interval": "Position check interval (seconds)",
+          "invert_position": "Reverse position",
+          "battery_min_voltage": "Battery empty voltage (0 = automatic)",
+          "battery_max_voltage": "Battery full voltage (0 = automatic)",
+          "use_websocket": "Read signal strength and online status",
+          "restart_switch": "Smart plug that powers the hub (optional)",
+          "restart_after": "Restart the hub after no blind has reported for (minutes)"
+        },
+        "data_description": {
+          "extra_blinds": "3-character IDs separated by commas, for blinds that discovery missed (e.g. asleep or out of range).",
+          "excluded_blinds": "3-character IDs separated by commas, for devices you don't want in Home Assistant.",
+          "position_interval": "How often blinds that report their position are asked for it. Blinds that don't answer are only asked once an hour. Positions are also re-checked after every command.",
+          "invert_position": "Turn this on if the position is the wrong way round (a fully open blind shows 0 % instead of 100 %).",
+          "battery_min_voltage": "Leave both at 0 to detect 12 V or 8.4 V packs automatically. The 'Battery Voltage' diagnostic sensor shows what your blinds report.",
+          "battery_max_voltage": "Must be higher than the empty voltage.",
+          "use_websocket": "Reads each blind's signal strength and online status from the hub's WebSocket (port 443, the interface the Automate app uses) every 5 minutes. Turn this off if your hub doesn't offer it. Blind control doesn't depend on it.",
+          "restart_switch": "If set, the hub is power cycled (off for 30 seconds) when no blind has reported for the time below, at most once every 3 hours. A Restart hub button is added as well. Choose the plug the hub is connected to, and set it to switch on by itself after a power cut.",
+          "restart_after": "Only used with a smart plug. At least three position checks are always waited for. After 24 hours without any report, automatic restarts pause until a blind reports again."
+        }
+      }
+    },
+    "error": {
+      "invalid_blind_id": "Blind IDs are 3 letters or numbers, separated by commas (e.g. ABC, X1Y).",
+      "invalid_voltage_range": "Set both voltages (empty lower than full), or set both to 0 for automatic."
+    }
+  }
+}
